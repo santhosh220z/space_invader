@@ -31,7 +31,8 @@ while running:
             if e.key == pygame.K_RIGHT:
                 pos_x_cha = 0.3
         if e.type == pygame.KEYUP:
-            pos_x_cha, pos_y_cha = 0
+            pos_x_cha = 0
+            pos_y_cha = 0
     #color
     red = 0
     green = 0
@@ -39,5 +40,9 @@ while running:
     screen.fill((red,green,blue))
     #player calling
     pos_x += pos_x_cha
+    if pos_x <= 0 :
+        pos_x = 0
+    elif pos_x >= 736:
+        pos_x = 736
     player(pos_x, pos_y)
     pygame.display.update()
