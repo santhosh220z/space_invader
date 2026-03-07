@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 # initilize the pygame 
 pygame.init()
 #creating a display for the game 
@@ -13,6 +14,9 @@ icon = pygame.image.load("icons_and_characters/spaceship.png")
 pygame.display.set_icon(icon)
 #player_image
 player_img = pygame.image.load("icons_and_characters/Adobe Express - file.png")
+#score
+score = 0
+font = pygame.font.Font(None, 32)
 #default player position
 pos_x = 370
 pos_y = 480
@@ -29,8 +33,8 @@ enemy_pos_y_cha = 0.008
 bullet_img = pygame.image.load("icons_and_characters/bullet.png")
 bullet_x = 0
 bullet_y = 480
-bullet_x_cha = 0
-bullet_y_cha = -0.5
+# bullet_x_cha = 0
+# bullet_y_cha = -0.5
 bullet_state = "ready"
 #defining player
 def player(pos_x,pos_y):
@@ -40,10 +44,15 @@ def enemy(enemy_pos_x,enemy_pos_y):
     screen.blit(enemy_img, (enemy_pos_x, enemy_pos_y))
 #defining bullet
 def bullet_fire(x,y):
-    global bullet_y
     global bullet_state
     bullet_state = "fired"
     screen.blit(bullet_img,(x+16, y+10))
+def collision(x1,y1,x2,y2):
+    distance = math.sqrt(math.pow((x2-x1),2)+math.pow((y2-y1),2))
+    if distance < 27:
+        return True
+    else:
+        return False
 
 #game loop (for the screen to not close after running completed)
 running = True
@@ -58,7 +67,7 @@ while running:
             if e.key == pygame.K_RIGHT:
                 pos_x_cha = 0.3
             if e.key == pygame.K_SPACE:
-                if bullet_state is "ready":
+                if bullet_state == "ready":
                     bullet_x = pos_x
                     bullet_fire(bullet_x,bullet_y)
                 
@@ -73,13 +82,9 @@ while running:
         pos_x = 0
     elif pos_x >= 736:
         pos_x = 736
-    #bullet_movement
-    if bullet_y <= 0:
-        bullet_y = 480
-        bullet_state = "ready"
-    if bullet_state == "fired":
-        bullet_fire(bullet_x,bullet_y)
-        bullet_y -= 0.5
+    #score 
+    score_surf = font.render(f"SCORE: {score}", True, (255, 255, 255))
+    screen.blit(score_surf, (10, 10))
     #emeny movement
     enemy_pos_x += enemy_pos_x_cha
     if enemy_pos_x <= 0 :
@@ -87,6 +92,23 @@ while running:
     elif enemy_pos_x >= 736:
         enemy_pos_x_cha = -0.1
     enemy_pos_y += enemy_pos_y_cha
+    #bullet_movement
+    if bullet_y <= 0:
+        bullet_y = 480
+        bullet_state = "ready"
+    if bullet_state == "fired":
+        bullet_fire(bullet_x,bullet_y)
+        bullet_y -= 0.5
+    
+    #collision
+    colli = collision(enemy_pos_x,enemy_pos_y,bullet_x,bullet_y)
+    if colli:
+        bullet_y = 480
+        bullet_state = "ready"
+        score += 1
+        enemy_pos_x = random.randint(0,736)
+        enemy_pos_y = random.randint(50,150)
+        
     player(pos_x, pos_y)
     enemy(enemy_pos_x,enemy_pos_y)
     pygame.display.update()
